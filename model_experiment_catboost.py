@@ -3,14 +3,38 @@ import numpy as np
 import pandas as pd
 from catboost import Pool, CatBoostClassifier, CatBoostRegressor
 from sklearn.model_selection import train_test_split
+import zipfile 
+
+
+def get_submission_csv():
+    model = CatBoostClassifier()
+    model.load_model("./models/model_catboost_final")
+
+    data = pd.read_csv(zipfile.ZipFile("./sf-crime/train_engineered.csv.zip").open("train_engineered.csv"))
+    category = pd.factorize(data["Category"], sort = True)
+
+    X_test = pd.read_csv(zipfile.ZipFile("./sf-crime/test_engineered.csv.zip").open("test_engineered.csv"))
+    crime_id = X_test["Id"]
+    X_test = X_test.drop("Id", axis = 1)
+    cat_features = np.where(X_test.dtypes != float)[0] # get features that aren't floats
+    test_dataset = Pool(data = X_test, cat_features = cat_features)
+    pred_proba = model.predict_proba(test_dataset)
+
+    # Save results
+    result = pd.DataFrame(pred_proba)
+    result.insert(0, "Id", crime_id)
+    column_names = np.insert(category[1], 0, "Id")
+    result.columns = column_names
+    result.to_csv("./submissions/submission_catboost.csv", index = False)
+
 
 if __name__== "__main__":
-    # Use current script dir as working dir
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    
-    data = pd.read_csv("./sf-crime/train.csv") # convert csv to df
+    # get_submission_csv() # get submission csv to Kaggle
+    convert zip csv to df    
+    data = pd.read_csv(zipfile.ZipFile("./sf-crime/train_engineered.csv.zip").open("train_engineered.csv"))
     y = data.Category # get the class labels
     X = data.drop("Category", axis=1) # all features without class labels
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2) # split test and train df
     cat_features = np.where(X.dtypes != float)[0] # get features that aren't floats
 
@@ -30,4 +54,4 @@ if __name__== "__main__":
     preds_raw = model.predict(eval_dataset, prediction_type = "RawFormulaVal")
     
     print(model.get_best_score())
-    model.save_model("./models/model_01_10000_6_final") # save the model
+    model.save_model("./models/model_catboost_final") # save the model

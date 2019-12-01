@@ -13,7 +13,7 @@ def get_feature_variance(df, engineered):
     if engineered:
         df = df.drop("Category", axis=1) # drop labels
     else:
-        df = df.drop(['Descript', 'Resolution', 'Address', 'Category', 'X', 'Y', 'Dates'], axis = 1)
+        df = df.drop(["Descript", "Resolution", "Address", "Category", "X", "Y", "Dates"], axis = 1)
         df = pd.get_dummies(df)
     scaler = MinMaxScaler()
     scaler.fit(df)
@@ -44,7 +44,7 @@ def get_correlation_plot(df, engineered):
     if engineered:
         df = df.drop("Category", axis=1) # drop labels
     else:
-        df = df.drop(['Descript', 'Resolution', 'Address', 'Category', 'Dates'], axis=1)
+        df = df.drop(["Descript", "Resolution", "Address", "Category", "Dates"], axis=1)
         df = pd.get_dummies(df)
     plt.figure(figsize = (30, 30))
     sns.heatmap(df.corr(), annot = True, fmt = ".1f")
