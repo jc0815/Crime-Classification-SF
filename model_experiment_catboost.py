@@ -8,7 +8,7 @@ if __name__== "__main__":
     # Use current script dir as working dir
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     
-    data = pd.read_csv("./sf-crime/clean_final.csv") # convert csv to df
+    data = pd.read_csv("./sf-crime/train.csv") # convert csv to df
     y = data.Category # get the class labels
     X = data.drop("Category", axis=1) # all features without class labels
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2) # split test and train df
@@ -30,4 +30,4 @@ if __name__== "__main__":
     preds_raw = model.predict(eval_dataset, prediction_type = "RawFormulaVal")
     
     print(model.get_best_score())
-    model.save_model("./models/model_01_10000_6_cleaned") # save the model
+    model.save_model("./models/model_01_10000_6_final") # save the model
